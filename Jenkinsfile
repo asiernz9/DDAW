@@ -1,57 +1,58 @@
 pipeline {
     agent any
-
-    environment {
-        NODE_ENV = 'production' // Define el entorno
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Preparar entorno') {
             steps {
-                // Clona el repositorio del código fuente
-                checkout scm
+                script {
+                    // Verificar si Docker está instalado y funcionando
+                    sh 'docker --version'
+                }
             }
         }
-
-        stage('Install Dependencies') {
+        stage('Construir imagen Docker') {
             steps {
-                // Instala las dependencias del proyecto
-                sh 'npm install'
+                script {
+                    // Construir la imagen Docker
+                    sh 'docker build -t my-app:latest .'
+                }
             }
         }
-
-        stage('Run Tests') {
+        stage('Ejecutar contenedor') {
             steps {
-                // Ejecuta las pruebas
-                sh 'npm test'
+                script {
+                    // Iniciar el contenedor en modo background
+                    sh 'docker run -d --name my-app-container -p 8080:8080 my-app:latest'
+                }
             }
         }
-
-        stage('Build') {
+        stage('Ejecutar pruebas') {
             steps {
-                // Construye el proyecto
-                sh 'npm run build'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Implementa el despliegue (si aplica)
-                echo 'Deployment stage - configura tus pasos aquí'
+                script {
+                    // Ejecutar pruebas dentro del contenedor
+                    sh 'docker exec my-app-container npm test'
+                }
             }
         }
     }
-
     post {
         always {
-            // Limpia el espacio de trabajo después de la ejecución
-            cleanWs()
+            // Imprimir logs del contenedor
+            script {
+                sh 'docker logs my-app-container'
+            }
         }
         success {
-            echo 'Pipeline ejecutado con éxito'
+            // Dejar el contenedor corriendo si todo funciona correctamente
+            echo 'El contenedor sigue ejecutándose correctamente.'
         }
         failure {
-            echo 'Pipeline falló'
+            // Detener y eliminar el contenedor en caso de fallo
+            script {
+                sh 'docker stop my-app-container || true'
+                sh 'docker rm my-app-container || true'
+            }
+            echo 'Las pruebas fallaron. El contenedor fue detenido y eliminado.'
         }
     }
 }
+
