@@ -1,11 +1,15 @@
-import os
 import subprocess
 
 class CommandHandler:
     @staticmethod
-    def run_command(command, get_output=False):
-        """Ejecuta comandos en la terminal."""
-        if get_output:
-            return subprocess.check_output(command, shell=True, text=True)
-        else:
-            os.system(command)
+    def run_command(command):
+        """Ejecuta un comando del sistema."""
+        try:
+            result = subprocess.run(command, shell=True, check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(f"Comando ejecutado correctamente: {command}")
+            print(f"Salida: {result.stdout}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error al ejecutar el comando {command}: {e}")
+            print(f"Error: {e.stderr}")
+            raise
+
