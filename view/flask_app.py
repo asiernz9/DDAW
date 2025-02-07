@@ -1,49 +1,33 @@
-import requests
-import redis
 from flask import Flask, jsonify
+import requests
 
-# Inicializa la aplicación Flask
 app = Flask(__name__)
 
-# Conecta a Redis
-r = redis.Redis(host='localhost', port=6379, db=0)
+# URL base de la API de Pokémon
+POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon/"
 
 @app.route('/')
 def home():
-    return "¡Bienvenido a la Pokémon App!"
+    return "Bienvenido a la API de Pokémon. Usa el ID del Pokémon en la URL para obtener su nombre."
 
-@app.route('/pokemon/<int:num>')
-def get_pokemon(num):
-    """Consulta un Pokémon por su número en la Pokédex y almacena en Redis."""
-    
-    # Primero, intenta obtener el Pokémon de Redis
-    cached_pokemon = r.get(f"pokemon:{num}")
-    
-    if cached_pokemon:
-        # Si está en caché, decodifica la respuesta (Redis devuelve bytes)
-        pokemon = eval(cached_pokemon.decode("utf-8"))
-        return jsonify(pokemon)
-    
-    # Si no está en caché, consulta la API de Pokémon
-    url = f"https://pokeapi.co/api/v2/pokemon/{num}/"
+@app.route('/pokemon/<int:pokemon_id>')
+def get_pokemon(pokemon_id):
+    # Solicitar información sobre el Pokémon desde la API externa (Pokémon API)
+    url = f"{POKEMON_API_URL}{pokemon_id}"
     response = requests.get(url)
-
+    
     if response.status_code == 200:
-        data = response.json()
-        pokemon = {
-            "name": data["name"],
-            "id": data["id"],
-            "height": data["height"],
-            "weight": data["weight"],
-            "types": [type["type"]["name"] for type in data["types"]]
-        }
-        
-        # Almacena la respuesta en Redis para futuras consultas
-        r.set(f"pokemon:{num}", str(pokemon), ex=3600)  # Guardar por 1 hora (3600 segundos)
-        
-        return jsonify(pokemon)
+        # Obtener los datos del Pokémon
+        pokemon_data = response.json()
+        pokemon_name = pokemon_data["name"]
+        return jsonify({"id": pokemon_id, "name": pokemon_name})
     else:
         return jsonify({"error": "Pokémon no encontrado"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=8000)
+
+
+
+
+
