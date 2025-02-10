@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import requests
 import logging
 from functools import lru_cache
+import redis
 
 app = Flask(__name__)
 
@@ -11,14 +12,25 @@ logger = logging.getLogger(__name__)
 
 POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon/"
 
+# Configurar Redis
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 # Cache de solicitudes
 @lru_cache(maxsize=200)
 def get_pokemon_details(url):
     try:
         logger.debug(f"Fetching data from: {url}")
+        cached_data = redis_client.get(url)
+        if cached_data:
+            logger.debug(f"Cache hit for URL: {url}")
+            return cached_data
+
         response = requests.get(url)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        redis_client.set(url, data)
+        logger.debug(f"Cache set for URL: {url}")
+        return data
     except requests.exceptions.RequestException as e:
         logger.error(f"Request failed for URL {url}: {e}")
         raise
