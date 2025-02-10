@@ -3,7 +3,7 @@ from handler.setup_handler import SetupHandler
 
 def main():
     # Aquí movemos la importación para evitar el ciclo
-    from view.flask_app import app  # Solo importamos app aquí, después de las configuraciones previas.
+    from flask_app import app  # Solo importamos app aquí, después de las configuraciones previas.
 
     # Paso 1: Instalación de dependencias
     print("Instalando dependencias...")

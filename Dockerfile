@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # Establecer el directorio de trabajo
 WORKDIR /app
@@ -9,12 +9,9 @@ COPY . .
 # Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN apt-get update && apt-get install -y sudo
-
-
 # Exponer el puerto de la aplicación Flask
-EXPOSE 5000
+EXPOSE 8000
 
 # Ejecutar el servidor de Flask
-CMD ["python", "main.py"]
+CMD ["python", "flask_app.py"]
 

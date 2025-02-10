@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex 3D - Primera Generación</title>
+    <style>
+        :root {
+            --card-height: 300px;
+            --card-width: 200px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .filter-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        select {
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 25px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        select option {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .pokemon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(var(--card-width), 1fr));
+            gap: 30px;
+            padding: 20px;
+            justify-items: center;
+        }
+
+        .pokemon-card {
+            width: var(--card-width);
+            height: var(--card-height);
+            position: relative;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .pokemon-card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(145deg, #e6e6e6, #ffffff);
+        }
+
+        .pokemon-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin: 10px 0;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .pokemon-card:hover .pokemon-image {
+            transform: scale(1.1);
+        }
+
+        .pokemon-name {
+            font-size: 1.5em;
+            color: #333;
+            text-transform: capitalize;
+            margin: 10px 0;
+        }
+
+        .pokemon-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #666;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .pokemon-image {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pokédex 3D - Primera Generación</h1>
+        
+        <div class="filter-container">
+            <select id="typeFilter">
+                <option value="">Todos los tipos</option>
+                <option value="normal">Normal</option>
+                <option value="fire">Fuego</option>
+                <option value="water">Agua</option>
+                <option value="electric">Eléctrico</option>
+                <option value="grass">Planta</option>
+                <option value="ice">Hielo</option>
+                <option value="fighting">Lucha</option>
+                <option value="poison">Veneno</option>
+                <option value="ground">Tierra</option>
+                <option value="flying">Volador</option>
+                <option value="psychic">Psíquico</option>
+                <option value="bug">Bicho</option>
+                <option value="rock">Roca</option>
+                <option value="ghost">Fantasma</option>
+                <option value="dragon">Dragón</option>
+            </select>
+        </div>
+
+        <div id="loading" class="loading">Cargando Pokémon...</div>
+        <div class="pokemon-grid" id="pokemonGrid">
+            {% for pokemon in pokemon_list %}
+            <div class="pokemon-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="pokemon-number">#{{ pokemon.id }}</div>
+                        <img class="pokemon-image" src="{{ pokemon.image }}" alt="{{ pokemon.name }}">
+                        <h2 class="pokemon-name">{{ pokemon.name }}</h2>
+                    </div>
+                    <div class="card-back">
+                        <div class="pokemon-number">#{{ pokemon.id }}</div>
+                        <img class="pokemon-image" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/{{ pokemon.id }}.png" alt="{{ pokemon.name }} back">
+                        <h2 class="pokemon-name">{{ pokemon.name }}</h2>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('typeFilter').addEventListener('change', function(e) {
+                const selectedType = e.target.value;
+                if (!selectedType) {
+                    window.location.href = '/';
+                } else {
+                    loadPokemonByType(selectedType);
+                }
+            });
+        });
+
+        async function loadPokemonByType(type) {
+            try {
+                showLoading(true);
+                const response = await fetch(`/pokemon/type/${type}`);
+                const pokemonList = await response.json();
+                displayPokemon(pokemonList);
+            } catch (error) {
+                console.error('Error loading Pokemon by type:', error);
+                showError();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayPokemon(pokemonList) {
+            const grid = document.getElementById('pokemonGrid');
+            grid.innerHTML = '';
+
+            pokemonList.sort((a, b) => Number(a.id) - Number(b.id));
+
+            pokemonList.forEach(pokemon => {
+                const card = document.createElement('div');
+                card.className = 'pokemon-card';
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pokemon-number">#${String(pokemon.id).padStart(3, '0')}</div>
+                            <img class="pokemon-image" 
+                                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
+                                alt="${pokemon.name}">
+                            <h2 class="pokemon-name">${pokemon.name}</h2>
+                        </div>
+                        <div class="card-back">
+                            <div class="pokemon-number">#${String(pokemon.id).padStart(3, '0')}</div>
+                            <img class="pokemon-image" 
+                                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${pokemon.id}.png" 
+                                alt="${pokemon.name} back">
+                            <h2 class="pokemon-name">${pokemon.name}</h2>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError() {
+            const grid = document.getElementById('pokemonGrid');
+            grid.innerHTML = '<div class="error">Error al cargar los Pokémon. Por favor, intenta de nuevo.</div>';
+        }
+    </script>
+</body>
+</html>
