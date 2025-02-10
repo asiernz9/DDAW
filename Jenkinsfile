@@ -8,6 +8,13 @@ pipeline {
             }
         }
 
+        stage('Instalar Dependencias') {
+            steps {
+                echo 'Instalando dependencias...'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
         stage('Construcción') {
             steps {
                 echo 'Compilando el proyecto...'
@@ -20,14 +27,15 @@ pipeline {
         stage('Pruebas') {
             steps {
                 echo 'Ejecutando pruebas...'
-                // sh 'mvn test'  (Ejecutar pruebas con Maven)
+                // sh 'pytest'  (Ejecutar pruebas con pytest)
             }
         }
 
         stage('Despliegue') {
             steps {
                 echo 'Desplegando la aplicación...'
-                // Aquí puedes agregar pasos para desplegar, como subir a un servidor o Docker
+                sh 'docker build -t ddaaw-app .'
+                sh 'docker run -d -p 8000:8000 ddaaw-app'
             }
         }
     }
