@@ -21,7 +21,8 @@ pipeline {
             steps {
                 echo 'Deteniendo y eliminando contenedores previos si existen...'
                 powershell '''
-                if (docker ps -aq -f name=pokemon-app) {
+                $container = docker ps -aq -f name=pokemon-app
+                if ($container) {
                     docker stop pokemon-app
                     docker rm pokemon-app
                 }
