@@ -10,8 +10,11 @@ COPY requirements.txt .
 # Instalar las dependencias necesarias
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Instalar pytest para las pruebas
+RUN pip install pytest
+
 # Copiar todo el resto de los archivos de la aplicación
-COPY . .
+COPY . . 
 
 # Asegurar que el archivo flask_app.py existe
 RUN test -f flask_app.py || (echo "Error: flask_app.py no encontrado" && exit 1)
@@ -21,6 +24,7 @@ EXPOSE 8000
 
 # Comando para ejecutar la aplicación Flask
 CMD ["python", "flask_app.py"]
+
 
 
 

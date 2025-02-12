@@ -24,8 +24,11 @@ pipeline {
                 echo 'Ejecutando el contenedor...'
                 sh 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
 
-                echo 'Esperando 5 segundos antes de mostrar logs...'
-                sh 'sleep 5 && docker logs pokemon-app'
+                echo 'Esperando 10 segundos para asegurar que el contenedor está listo...'
+                sh 'sleep 10' // Ajustado para esperar un poco más antes de ejecutar las pruebas
+
+                echo 'Mostrando logs del contenedor para verificar que está en ejecución...'
+                sh 'docker logs pokemon-app'
             }
         }
 
@@ -37,5 +40,3 @@ pipeline {
         }
     }
 }
-
-
