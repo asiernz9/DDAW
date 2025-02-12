@@ -11,7 +11,15 @@ pipeline {
         stage('Instalar Dependencias') {
             steps {
                 echo 'Instalando dependencias...'
-                sh 'pip install -r requirements.txt'
+                script {
+                    if (fileExists('requirements.txt')) {
+                        echo 'El archivo requirements.txt existe. Procediendo con la instalación...'
+                        sh 'cat requirements.txt'  // Mostrar el contenido de requirements.txt
+                        sh 'pip install -r requirements.txt'
+                    } else {
+                        error 'El archivo requirements.txt no existe'
+                    }
+                }
             }
         }
 
@@ -24,7 +32,6 @@ pipeline {
         stage('Pruebas') {
             steps {
                 echo 'Ejecutando pruebas...'
-                
             }
         }
 
@@ -37,4 +44,3 @@ pipeline {
         }
     }
 }
-
