@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent any  
 
     stages {
         stage('Clonar Código') {
@@ -11,40 +11,39 @@ pipeline {
         stage('Construir Imagen Docker') {
             steps {
                 echo 'Construyendo la imagen Docker...'
-                powershell 'docker build -t ddaw-app .'
+                sh 'docker build -t ddaw-app .'
             }
         }
 
         stage('Levantar Contenedor') {
-    steps {
-        echo 'Deteniendo y eliminando contenedores previos si existen...'
-        powershell '''
-            $container = docker ps -aq -f name=pokemon-app
-            if ($container) {
-                Write-Host "Contenedor encontrado. Deteniendo y eliminando..."
-                docker stop pokemon-app
-                docker rm pokemon-app
-            } else {
-                Write-Host "No se encontró el contenedor pokemon-app"
+            steps {
+                echo 'Verificando si el contenedor pokemon-app ya existe...'
+                
+                // Verifica si el contenedor existe antes de detenerlo y eliminarlo
+                script {
+                    def containerId = sh(script: 'docker ps -aq -f name=pokemon-app', returnStdout: true).trim()
+                    if (containerId) {
+                        echo 'Deteniendo y eliminando el contenedor pokemon-app existente...'
+                        sh "docker stop pokemon-app || true"
+                        sh "docker rm pokemon-app || true"
+                    } else {
+                        echo 'No se encontró el contenedor pokemon-app en ejecución.'
+                    }
+                }
+
+                echo 'Ejecutando el contenedor...'
+                sh 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+
+                echo 'Esperando 5 segundos antes de mostrar logs...'
+                sh 'sleep 5 && docker logs pokemon-app'
             }
-        '''
-
-        echo 'Ejecutando el contenedor...'
-        powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
-
-        echo 'Esperando 5 segundos antes de mostrar logs...'
-        powershell 'Start-Sleep -Seconds 5; docker logs pokemon-app'
-    }
-}
-
+        }
 
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Ejecutando pruebas dentro del contenedor...'
-                powershell 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
+                sh 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
             }
         }
     }
 }
-
-
