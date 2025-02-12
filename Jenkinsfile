@@ -18,16 +18,13 @@ pipeline {
         stage('Construcción') {
             steps {
                 echo 'Compilando el proyecto...'
-                // Aquí puedes agregar comandos como:
-                // sh 'mvn clean package'  (Para Maven)
-                // sh 'npm install'  (Para Node.js)
             }
         }
 
         stage('Pruebas') {
             steps {
                 echo 'Ejecutando pruebas...'
-                // sh 'pytest'  (Ejecutar pruebas con pytest)
+                
             }
         }
 
