@@ -21,8 +21,10 @@ pipeline {
             steps {
                 echo 'Deteniendo y eliminando contenedores previos si existen...'
                 powershell '''
-                docker stop pokemon-app || true
-                docker rm pokemon-app || true
+                if (docker ps -aq -f name=pokemon-app) {
+                    docker stop pokemon-app
+                    docker rm pokemon-app
+                }
                 '''
 
                 echo 'Ejecutando el contenedor...'
@@ -31,7 +33,7 @@ pipeline {
                 '''
 
                 echo 'Esperando 10 segundos para asegurar que el contenedor está listo...'
-                powershell 'sleep 10'
+                powershell 'Start-Sleep -Seconds 10'
 
                 echo 'Mostrando logs del contenedor para verificar que está en ejecución...'
                 powershell 'docker logs pokemon-app'
@@ -48,4 +50,3 @@ pipeline {
         }
     }
 }
-
