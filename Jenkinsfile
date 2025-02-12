@@ -18,27 +18,33 @@ pipeline {
         }
 
         stage('Levantar Contenedor') {
-            steps {
-                echo 'Verificando si el contenedor pokemon-app ya existe...'
-                
-                script {
-                    def containerId = powershell(script: 'docker ps -aq -f name=pokemon-app', returnStdout: true).trim()
-                    if (containerId) {
-                        echo 'Deteniendo y eliminando el contenedor pokemon-app existente...'
-                        powershell "docker stop pokemon-app || true"
-                        powershell "docker rm pokemon-app || true"
-                    } else {
-                        echo 'No se encontró el contenedor pokemon-app en ejecución.'
+    steps {
+        echo 'Verificando si el contenedor pokemon-app ya existe...'
+        
+        script {
+            def containerId = powershell(script: 'docker ps -aq -f name=pokemon-app', returnStdout: true).trim()
+            if (containerId) {
+                echo 'Deteniendo y eliminando el contenedor pokemon-app existente...'
+                powershell """
+                    if (docker ps -aq -f name=pokemon-app) {
+                        docker stop pokemon-app
                     }
-                }
-
-                echo 'Ejecutando el contenedor...'
-                powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
-
-                echo 'Esperando 5 segundos antes de mostrar logs...'
-                powershell 'sleep 5; docker logs pokemon-app'
+                    if (docker ps -aq -f name=pokemon-app) {
+                        docker rm pokemon-app
+                    }
+                """
+            } else {
+                echo 'No se encontró el contenedor pokemon-app en ejecución.'
             }
         }
+
+        echo 'Ejecutando el contenedor...'
+        powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+
+        echo 'Esperando 5 segundos antes de mostrar logs...'
+        powershell 'sleep 5; docker logs pokemon-app'
+    }
+}
 
         stage('Ejecutar Pruebas') {
             steps {
