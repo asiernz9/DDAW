@@ -1,5 +1,5 @@
 pipeline {
-    agent any  
+    agent any
 
     stages {
         stage('Clonar Código') {
@@ -11,14 +11,13 @@ pipeline {
         stage('Construir Imagen Docker') {
             steps {
                 echo 'Construyendo la imagen Docker...'
-                sh 'docker build -t ddaw-app .'
+                powershell 'docker build -t ddaw-app .'
             }
         }
 
         stage('Levantar Contenedor') {
             steps {
                 echo 'Deteniendo y eliminando contenedores previos si existen...'
-                // Usamos PowerShell para comprobar si el contenedor existe
                 powershell '''
                 $container = docker ps -aq -f name=pokemon-app
                 if ($container -ne "") {
@@ -30,19 +29,20 @@ pipeline {
                 '''
 
                 echo 'Ejecutando el contenedor...'
-                sh 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+                powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
 
                 echo 'Esperando 5 segundos antes de mostrar logs...'
-                sh 'sleep 5 && docker logs pokemon-app'
+                powershell 'Start-Sleep -Seconds 5; docker logs pokemon-app'
             }
         }
 
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Ejecutando pruebas dentro del contenedor...'
-                sh 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
+                powershell 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
             }
         }
     }
 }
+
 
