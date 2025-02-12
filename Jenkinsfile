@@ -1,5 +1,5 @@
 pipeline {
-    agent any  // Usa cualquier agente disponible en Jenkins
+    agent any  
 
     stages {
         stage('Clonar Código') {
@@ -14,7 +14,8 @@ pipeline {
                 script {
                     if (fileExists('requirements.txt')) {
                         echo 'El archivo requirements.txt existe. Procediendo con la instalación...'
-                        sh 'cat requirements.txt'  // Mostrar el contenido de requirements.txt
+                        sh 'ls -l'
+                        sh 'cat requirements.txt'
                         sh 'pip install -r requirements.txt'
                     } else {
                         error 'El archivo requirements.txt no existe'
@@ -37,10 +38,23 @@ pipeline {
 
         stage('Despliegue') {
             steps {
-                echo 'Desplegando la aplicación...'
-                sh 'docker build -t ddaaw-app .'
-                sh 'docker run -d -p 8000:8000 ddaaw-app'
+                echo 'Construyendo la imagen Docker...'
+                sh 'docker build -t ddaw-app .'
+
+                echo 'Verificando imágenes creadas...'
+                sh 'docker images | grep ddaw-app'
+
+                echo 'Deteniendo cualquier contenedor previo...'
+                sh 'docker stop pokemon-app || true'
+                sh 'docker rm pokemon-app || true'
+
+                echo 'Ejecutando el contenedor en modo debug...'
+                sh 'docker run -d -p 8000:8000 --name pokemon-app --link pokemon-redis ddaw-app'
+
+                echo 'Esperando 5 segundos antes de mostrar logs...'
+                sh 'sleep 5 && docker logs pokemon-app'
             }
         }
     }
 }
+

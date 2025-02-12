@@ -161,21 +161,6 @@
         <div class="filter-container">
             <select id="typeFilter">
                 <option value="">Todos los tipos</option>
-                <option value="normal">Normal</option>
-                <option value="fire">Fuego</option>
-                <option value="water">Agua</option>
-                <option value="electric">Eléctrico</option>
-                <option value="grass">Planta</option>
-                <option value="ice">Hielo</option>
-                <option value="fighting">Lucha</option>
-                <option value="poison">Veneno</option>
-                <option value="ground">Tierra</option>
-                <option value="flying">Volador</option>
-                <option value="psychic">Psíquico</option>
-                <option value="bug">Bicho</option>
-                <option value="rock">Roca</option>
-                <option value="ghost">Fantasma</option>
-                <option value="dragon">Dragón</option>
             </select>
         </div>
 
@@ -200,12 +185,13 @@
         </div>
     </div>
 
+    <!-- Aquí va tu código JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('typeFilter').addEventListener('change', function(e) {
                 const selectedType = e.target.value;
                 if (!selectedType) {
-                    window.location.href = '/';
+                    window.location.href = '/'; // Regresa a la página principal sin filtro
                 } else {
                     loadPokemonByType(selectedType);
                 }
@@ -215,7 +201,7 @@
         async function loadPokemonByType(type) {
             try {
                 showLoading(true);
-                const response = await fetch(`/pokemon/type/${type}`);
+                const response = await fetch(`/pokemon/types`);
                 const pokemonList = await response.json();
                 displayPokemon(pokemonList);
             } catch (error) {
@@ -266,5 +252,6 @@
             grid.innerHTML = '<div class="error">Error al cargar los Pokémon. Por favor, intenta de nuevo.</div>';
         }
     </script>
+
 </body>
 </html>
