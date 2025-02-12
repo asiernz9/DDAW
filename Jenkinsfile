@@ -11,32 +11,41 @@ pipeline {
         stage('Construir Imagen Docker') {
             steps {
                 echo 'Construyendo la imagen Docker...'
-                sh 'docker build -t ddaw-app .'
+                powershell '''
+                docker build -t ddaw-app .
+                '''
             }
         }
 
         stage('Levantar Contenedor') {
             steps {
                 echo 'Deteniendo y eliminando contenedores previos si existen...'
-                sh 'docker stop pokemon-app || true'
-                sh 'docker rm pokemon-app || true'
+                powershell '''
+                docker stop pokemon-app || true
+                docker rm pokemon-app || true
+                '''
 
                 echo 'Ejecutando el contenedor...'
-                sh 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+                powershell '''
+                docker run -d -p 8000:8000 --name pokemon-app ddaw-app
+                '''
 
                 echo 'Esperando 10 segundos para asegurar que el contenedor está listo...'
-                sh 'sleep 10' // Ajustado para esperar un poco más antes de ejecutar las pruebas
+                powershell 'sleep 10'
 
                 echo 'Mostrando logs del contenedor para verificar que está en ejecución...'
-                sh 'docker logs pokemon-app'
+                powershell 'docker logs pokemon-app'
             }
         }
 
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Ejecutando pruebas dentro del contenedor...'
-                sh 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
+                powershell '''
+                docker exec pokemon-app pytest tests/
+                '''
             }
         }
     }
 }
+
