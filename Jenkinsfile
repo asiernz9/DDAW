@@ -16,25 +16,27 @@ pipeline {
         }
 
         stage('Levantar Contenedor') {
-            steps {
-                echo 'Deteniendo y eliminando contenedores previos si existen...'
-                powershell '''
-                $container = docker ps -aq -f name=pokemon-app
-                if ($container -ne "") {
-                    docker stop pokemon-app
-                    docker rm pokemon-app
-                } else {
-                    Write-Host "No se encontró el contenedor pokemon-app"
-                }
-                '''
-
-                echo 'Ejecutando el contenedor...'
-                powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
-
-                echo 'Esperando 5 segundos antes de mostrar logs...'
-                powershell 'Start-Sleep -Seconds 5; docker logs pokemon-app'
+    steps {
+        echo 'Deteniendo y eliminando contenedores previos si existen...'
+        powershell '''
+            $container = docker ps -aq -f name=pokemon-app
+            if ($container) {
+                Write-Host "Contenedor encontrado. Deteniendo y eliminando..."
+                docker stop pokemon-app
+                docker rm pokemon-app
+            } else {
+                Write-Host "No se encontró el contenedor pokemon-app"
             }
-        }
+        '''
+
+        echo 'Ejecutando el contenedor...'
+        powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+
+        echo 'Esperando 5 segundos antes de mostrar logs...'
+        powershell 'Start-Sleep -Seconds 5; docker logs pokemon-app'
+    }
+}
+
 
         stage('Ejecutar Pruebas') {
             steps {
