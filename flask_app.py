@@ -10,7 +10,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 # Configurar Sentry
 sentry_sdk.init(
-    dsn="https://70895089fc56bba10cdeb2580cee80f308deebd3a0a883ffbee37e21ee50546f@sentry.io/xxxxxxxx",  # Sustituye con tu token completo
+    dsn="https://70895089fc56bba10cdeb2580cee80f308deebd3a0a883ffbee37e21ee50546f@sentry.io/123456",  # Sustituye con tu token completo
     integrations=[FlaskIntegration()],
     traces_sample_rate=1.0,  # Ajusta esto dependiendo de cómo quieras manejar el muestreo de trazas
 )

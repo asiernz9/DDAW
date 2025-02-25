@@ -3,5 +3,8 @@ requests==2.26.0
 redis==4.4.0
 Werkzeug==2.2.3
 pytest==7.1.2
+sentry-sdk
+blinker
+
 
 

@@ -49,7 +49,7 @@ pipeline {
         stage('Ejecutar Pruebas') {
             steps {
                 echo 'Ejecutando pruebas dentro del contenedor...'
-                powershell 'docker exec pokemon-app pytest tests/'  // Cambia `tests/` por la ruta correcta si es diferente
+                powershell 'docker exec pokemon-app pytest tests/'
             }
         }
     }
