@@ -5,6 +5,15 @@ from functools import lru_cache
 import redis
 import os
 import json
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+# Configurar Sentry
+sentry_sdk.init(
+    dsn="https://70895089fc56bba10cdeb2580cee80f308deebd3a0a883ffbee37e21ee50546f@sentry.io/xxxxxxxx",  # Sustituye con tu token completo
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,  # Ajusta esto dependiendo de cómo quieras manejar el muestreo de trazas
+)
 
 app = Flask(__name__)
 
@@ -47,6 +56,8 @@ def get_pokemon_details(url):
 @app.errorhandler(Exception)
 def handle_exception(e):
     logger.error(f"Unhandled error: {e}")
+    # Reportar el error a Sentry
+    sentry_sdk.capture_exception(e)
     return jsonify({"error": str(e)}), 500
 
 # Ruta principal
@@ -79,6 +90,7 @@ def home():
 
     except requests.exceptions.RequestException as e:
         logger.error(f"API request failed: {e}")
+        sentry_sdk.capture_exception(e)  # Reportar la excepción a Sentry
         return jsonify({"error": "Failed to fetch Pokémon list. Please try again later."}), 500
 
 # Ruta para filtrar Pokémon por tipo
@@ -115,6 +127,7 @@ def get_pokemon_by_type(pokemon_type):
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to fetch Pokémon of type {pokemon_type}: {e}")
+        sentry_sdk.capture_exception(e)  # Reportar la excepción a Sentry
         return jsonify({"error": "Failed to fetch Pokémon of the specified type."}), 500
 
 # Ruta para filtrar Pokémon por múltiples tipos
@@ -161,6 +174,7 @@ def get_pokemon_by_types():
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to fetch Pokémon of type {pokemon_type}: {e}")
+            sentry_sdk.capture_exception(e)  # Reportar la excepción a Sentry
             return jsonify({"error": f"Failed to fetch Pokémon of type {pokemon_type}"}), 500
 
     pokemon_list.sort(key=lambda x: x["id"])  # Ordenar por ID de Pokémon
@@ -169,4 +183,6 @@ def get_pokemon_by_types():
 
 # Inicio del servidor Flask
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    app.run(debug=True, host="0.0.0.0", port=8808)
+
+

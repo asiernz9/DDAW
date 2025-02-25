@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/asiernz9/poke-api-app/poke-api-proyect/poke-api-proyect/venv
+set -gx VIRTUAL_ENV /home/asiernz9/DDAW/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

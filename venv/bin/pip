@@ -1,4 +1,4 @@
-#!/home/asiernz9/poke-api-app/poke-api-proyect/poke-api-proyect/venv/bin/python3
+#!/home/asiernz9/DDAW/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

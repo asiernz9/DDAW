@@ -39,7 +39,7 @@ pipeline {
         }
 
         echo 'Ejecutando el contenedor...'
-        powershell 'docker run -d -p 8000:8000 --name pokemon-app ddaw-app'
+        powershell 'docker run -d -p 8808:8808 --name pokemon-app ddaw-app'
 
         echo 'Esperando 5 segundos antes de mostrar logs...'
         powershell 'sleep 5; docker logs pokemon-app'

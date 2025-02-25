@@ -20,7 +20,7 @@ COPY . .
 RUN test -f flask_app.py || (echo "Error: flask_app.py no encontrado" && exit 1)
 
 # Exponer el puerto en el que Flask escuchará
-EXPOSE 8000
+EXPOSE 8808
 
 # Comando para ejecutar la aplicación Flask
 CMD ["python", "flask_app.py"]
